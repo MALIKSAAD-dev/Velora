@@ -11,7 +11,9 @@ import {
   FileText,
   Mail,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Copy,
+  Check
 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -29,6 +31,22 @@ export default function Home() {
   const [result, setResult] = useState<ResearchResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [activeTab, setActiveTab] = useState<"email" | "proposal">("proposal");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (!result) return;
+
+    // Determine what to copy based on active tab
+    const textToCopy = activeTab === "proposal"
+      ? result.proposal || "No proposal found"
+      : result.cold_email || "No email found";
+
+    navigator.clipboard.writeText(textToCopy);
+
+    // Show checkmark briefly
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const loadingSteps = [
     "Scraping website content...",
@@ -222,7 +240,24 @@ export default function Home() {
                       {activeTab === "proposal" ? "Velora_Strategic_Proposal.md" : "Initial_Outreach.eml"}
                     </span>
                   </div>
-                  <CheckCircle2 size={18} className="text-white" />
+
+                  {/* Copy Button */}
+                  <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-xs font-medium text-neutral-300"
+                  >
+                    {copied ? (
+                      <>
+                        <Check size={14} className="text-green-400" />
+                        <span className="text-green-400">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 {/* Content Body */}
@@ -266,6 +301,6 @@ export default function Home() {
           )}
         </AnimatePresence>
       </div>
-    </main>
+    </main >
   );
 }
